@@ -11,13 +11,13 @@ var usersRouter = require('./routes/users');
 
 var app = express();
 
+var file_path = path.join(__dirname, '/public/tokenjsonfile.json');
+
 var serverKey = "AAAALN0pKyQ:APA91bEgbmmi4_A9wvhpV0OwgNrzwx0lwSkKD7THTyZ-gmS8GBvXuE7lRodJaJpmlsb91s3OioYgB1GqxSNaL1pskyVtPn6v4XVwZlmZiPfTonMgATQjGFbx-IGOg-thGjDuyXPmXsj3";
 var fcm = new FCM(serverKey);
 var obj = {
   tokens: []
 };
-
-
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -43,8 +43,6 @@ app.use(function (req, res, next) {
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
-var file_path = path.join(__dirname, '/public/tokenjsonfile.json');
-
 app.post("/save_token", (request, response) => {
   var token = request.body.token;
   if (token == null || token == 'null') {
@@ -58,7 +56,6 @@ app.post("/save_token", (request, response) => {
     if (exists) {
       fs.readFile(file_path, function readFileCallback(err, data) {
         if (err) {
-          console.log(err);
           response.status(401);
           return response.send({
             "statuscode": 401,
@@ -99,7 +96,6 @@ app.post("/save_token", (request, response) => {
       var json = JSON.stringify(obj);
       fs.writeFile(file_path, json, 'utf8', function (e, r) {
         if (e) {
-          console.log(e);
           response.status(401);
           return response.send({
             "statuscode": 401,
@@ -116,7 +112,6 @@ app.post("/save_token", (request, response) => {
   });
 });
 
-
 app.post("/notify", (request, response) => {
   fs.exists(file_path, function (exists) {
     if (exists) {
@@ -125,7 +120,6 @@ app.post("/notify", (request, response) => {
           console.log(err);
         } else {
           obj = JSON.parse(data);
-          console.log(obj);
           for (var i = 0; i < obj.tokens.length; i++) {
             sendNotification(i, response, obj.tokens[i]);
           }
@@ -134,7 +128,6 @@ app.post("/notify", (request, response) => {
     }
   });
 });
-
 
 function sendNotification(_i, response, _token) {
   var message = {
@@ -171,7 +164,6 @@ function sendNotification(_i, response, _token) {
 var server = app.listen(3000, function () {
   console.log('Listening on port %s...' + server.address().port);
 });
-
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
